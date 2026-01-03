@@ -1,6 +1,6 @@
 {
-  "name": "ghariani-dark-systems",
-  "version": "2.0.26",
+  "name": "ghariani-lfi-lab",
+  "version": "1.0.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
