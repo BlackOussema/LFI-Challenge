@@ -1,53 +1,36 @@
 const express = require('express');
-const { exec } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-
 const app = express();
 app.use(express.urlencoded({ extended: true }));
-
-fs.writeFileSync(path.join(__dirname, 'flag.txt'), 'ECC_CTF{COMMAND_INJECTION_MASTER_GHARIANI}');
 
 app.get('/', (req, res) => {
     res.send(`
         <!DOCTYPE html>
-        <html>
-        <head>
-            <title>GHARIANI | DIAGNOSTICS</title>
-            <style>
-                body { background: #000; color: #f00; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-                .panel { border: 2px solid #f00; padding: 40px; box-shadow: 0 0 20px #f00; background: #050000; text-align: center; }
-                input { background: #000; border: 1px solid #f00; color: #f00; padding: 15px; width: 300px; font-family: monospace; outline: none; margin-bottom: 20px; }
-                button { background: #f00; border: none; color: #000; padding: 15px 30px; cursor: pointer; font-weight: bold; }
-                button:hover { background: #fff; }
-            </style>
-        </head>
+        <head><title>SQLi Portal</title><style>
+            body { background: #000; color: #0ff; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; }
+            .box { border: 2px solid #0ff; padding: 40px; box-shadow: 0 0 20px #0ff; text-align: center; }
+            input { background: #000; border: 1px solid #0ff; color: #0ff; padding: 10px; margin: 10px; width: 250px; }
+            button { background: #0ff; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        </style></head>
         <body>
-            <div class="panel">
-                <h1>SYSTEM TERMINAL</h1>
-                <p>>_ ENTER IP FOR DIAGNOSTICS:</p>
-                <form action="/diagnose" method="POST">
-                    <input type="text" name="ip" placeholder="8.8.8.8" required>
-                    <br>
-                    <button type="submit">EXECUTE</button>
+            <div class="box">
+                <h1>ADMIN LOGIN</h1>
+                <form action="/login" method="POST">
+                    <input type="text" name="username" placeholder="Username" required><br>
+                    <input type="password" name="password" placeholder="Password"><br>
+                    <button type="submit">ACCESS SYSTEM</button>
                 </form>
             </div>
-        </body>
-        </html>
+        </body></html>
     `);
 });
 
-app.post('/diagnose', (req, res) => {
-    const ip = req.body.ip;
-    exec(`ping -c 1 ${ip}`, (err, stdout, stderr) => {
-        res.send(`
-            <body style="background:#000; color:#f00; padding:20px; font-family:monospace;">
-                <pre>${stdout || stderr}</pre>
-                <br><a href="/" style="color:#fff;">BACK</a>
-            </body>
-        `);
-    });
+app.post('/login', (req, res) => {
+    const { username } = req.body;
+    if (username.includes("' OR 1=1 --") || username.includes("' or 1=1 --")) {
+        res.send("<h1 style='color:#0ff; background:#000; padding:50px;'>FLAG: ECC_CTF{SQLi_Login_Bypass_Successful}</h1>");
+    } else {
+        res.send("<h1 style='color:red; background:#000; padding:50px;'>INVALID CREDENTIALS</h1>");
+    }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Server Active'));
+app.listen(3000);
