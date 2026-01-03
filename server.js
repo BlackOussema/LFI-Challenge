@@ -4,103 +4,52 @@ const fs = require('fs');
 
 const app = express();
 
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir);
+fs.writeFileSync(path.join(logsDir, 'system.txt'), 'System status: All nodes operational.');
+fs.writeFileSync(path.join(__dirname, 'secret_flag.txt'), 'ECC_CTF{LFI_TRAVERSAL_BY_GHARIANI_2026}');
+
 app.get('/', (req, res) => {
     res.send(`
         <!DOCTYPE html>
-        <html lang="en">
+        <html>
         <head>
-            <meta charset="UTF-8">
             <title>GHARIANI | DARK-SYSTEMS</title>
             <style>
-                :root { --glow-color: #00ff41; }
-                body {
-                    background-color: #050505;
-                    color: var(--glow-color);
-                    font-family: 'Courier New', monospace;
-                    display: flex; flex-direction: column;
-                    align-items: center; justify-content: center;
-                    height: 100vh; margin: 0; overflow: hidden;
-                }
-                .glitch {
-                    font-size: 3rem; font-weight: bold;
-                    text-transform: uppercase; position: relative;
-                    text-shadow: 0 0 10px var(--glow-color);
-                    margin-bottom: 20px;
-                }
-                .container {
-                    border: 2px solid var(--glow-color);
-                    padding: 40px; border-radius: 5px;
-                    background: rgba(0, 255, 65, 0.05);
-                    box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
-                    text-align: center; max-width: 600px;
-                }
-                .file-list { margin-top: 30px; display: flex; gap: 20px; }
-                .file-btn {
-                    color: #000; background: var(--glow-color);
-                    padding: 10px 20px; text-decoration: none;
-                    font-weight: bold; border-radius: 3px;
-                    transition: 0.3s; box-shadow: 0 0 10px var(--glow-color);
-                }
-                .file-btn:hover {
-                    background: #fff; color: #000;
-                    box-shadow: 0 0 30px #fff;
-                }
-                .terminal-text {
-                    font-size: 0.9rem; margin-top: 30px;
-                    opacity: 0.7; border-top: 1px solid var(--glow-color);
-                    padding-top: 10px; width: 100%;
-                }
-                footer { position: absolute; bottom: 10px; font-size: 12px; opacity: 0.5; }
+                body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                .box { border: 2px solid #0f0; padding: 40px; box-shadow: 0 0 20px #0f0; text-align: center; background: rgba(0,20,0,0.8); }
+                h1 { text-shadow: 0 0 10px #0f0; letter-spacing: 5px; }
+                .btn { color: #000; background: #0f0; padding: 10px 20px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 20px; transition: 0.3s; }
+                .btn:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+                .footer { margin-top: 30px; font-size: 12px; color: #050; }
             </style>
         </head>
         <body>
-            <div class="glitch">Access Restricted</div>
-            <div class="container">
-                <p>>_ GHARIANI_CENTRAL_CORE: V.2.0.26</p>
-                <p>>_ Unauthorized access is strictly prohibited by law.</p>
-                <p style="margin-top:20px;">Available System Logs:</p>
-                <div class="file-list">
-                    <a href="/view?path=logs/uptime.txt" class="file-btn">UPTIME LOG</a>
-                    <a href="/view?path=logs/traffic.txt" class="file-btn">TRAFFIC LOG</a>
-                </div>
-                <div class="terminal-text">
-                    [SYSTEM]: Waiting for input...<br>
-                    [HINT]: Directory traversal might reveal root secrets.
-                </div>
+            <div class="box">
+                <h1>SECURE PORTAL</h1>
+                <p>>_ WELCOME TO GHARIANI DARK SYSTEMS v2.0</p>
+                <p>>_ STATUS: ENCRYPTED</p>
+                <a href="/view?file=logs/system.txt" class="btn">VIEW SYSTEM LOGS</a>
             </div>
-            <footer>ID: GHARIANI OUSSEMA | SECURED BY QUANTUM ENCRYPTION</footer>
+            <div class="footer">ADMIN: GHARIANI OUSSEMA | 2026 &copy;</div>
         </body>
         </html>
     `);
 });
 
 app.get('/view', (req, res) => {
-    const userPath = req.query.path;
-    
-    const absolutePath = path.resolve(__dirname, userPath);
+    const fileName = req.query.file;
+    const filePath = path.join(__dirname, fileName);
 
-    fs.readFile(absolutePath, 'utf8', (err, data) => {
+    fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
-            res.status(500).send(`
-                <body style="background:#000; color:red; font-family:monospace; padding:20px;">
-                <h1>[!] SYSTEM ERROR</h1>
-                <p>ACCESS TO ${userPath} DENIED OR FILE DOES NOT EXIST.</p>
-                <br><a href="/" style="color:white;">BACK TO PORTAL</a>
-                </body>
-            `);
+            res.status(404).send("<body style='background:#000;color:red;'><h1>[!] ERROR: ACCESS DENIED</h1></body>");
         } else {
-            res.send(`
-                <body style="background:#050505; color:#00ff41; font-family:monospace; padding:30px;">
-                <h2>--- FILE_CONTENT: ${userPath} ---</h2>
-                <hr border-color="#00ff41">
-                <pre style="font-size:1.2rem;">${data}</pre>
-                <hr border-color="#00ff41">
-                <a href="/" style="color:#fff; text-decoration:none;">[ RETURN TO TERMINAL ]</a>
-                </body>
-            `);
+            res.send("<body style='background:#000;color:#0f0;padding:20px;'><pre>" + data + "</pre><br><a href='/' style='color:#fff;'>BACK</a></body>");
         }
     });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Matrix Server Active on ${PORT}`));
+app.listen(PORT, () => console.log('Server Active'));
+              
